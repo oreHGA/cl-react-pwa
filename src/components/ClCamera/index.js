@@ -23,8 +23,8 @@ class ClCamera extends Component {
         this.webcam.setup();
     }
 
-    componentDidUpdate() {
-        if (!this.props.offline) {
+    componentDidUpdate(prevProps) {
+        if (!this.props.offline && (prevProps.offline === true)) {
             // if its online,
             this.batchUploads();
         }
@@ -83,7 +83,7 @@ class ClCamera extends Component {
             // save image to local storage
         } else {
             axios.post(
-                `https://api.cloudinary.com/v1_1/<cloudname>/image/upload`,
+                `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUD_NAME}/image/upload`,
                 {
                     file: this.state.capturedImage,
                     upload_preset: 'cloudy_pwa'
@@ -115,22 +115,25 @@ class ClCamera extends Component {
     batchUploads = () => {
         // this is where all the images saved can be uploaded as batch uploads
         const images = this.findLocalItems(/^cloudy_pwa_/);
+        let error = false;
         for (let i = 0; i < images.length; i++) {
             // upload
             axios.post(
-                `https://api.cloudinary.com/v1_1/<cloudname>/image/upload`,
+                `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUD_NAME}/image/upload`,
                 {
                     file: images[i].val,
                     upload_preset: 'cloudy_pwa'
                 }
             ).then((data) => {
                 if (data.status === 200) {
-                    alert('Image Uploaded to Cloudinary Media Library');
                     localStorage.removeItem(images[i].key);
                 } else {
-                    console.log('Sorry, we encountered an error uploading your image');
+                    error = true;
                 }
             })
+        }
+        if (!error) {
+            alert("All saved images have been uploaded to your Cloudinary Media Library");
         }
     }
 }
