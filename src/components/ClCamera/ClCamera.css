@@ -1,0 +1,28 @@
+.captureButton{
+    margin-top: 20px;
+    padding: 10px;
+    padding-left: 20px;
+    padding-right: 20px;
+    background-color: #0066B2;
+    color: white;
+    border-radius: 5px;
+}
+
+.deleteButton{
+    margin-top: 20px;
+    padding: 10px;
+    padding-left: 20px;
+    padding-right: 20px;
+    background-color: #D77623;
+    color: white;
+    border-radius: 5px;
+}
+
+.imageCanvas{
+    margin-top: 20px;
+    width: 100%;
+    height: 200px;
+    /* object-fit: cover; */
+    display: flex;
+    justify-content: center;
+}
