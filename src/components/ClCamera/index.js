@@ -9,7 +9,8 @@ class ClCamera extends Component {
         this.webcam = null;
         this.state = {
             capturedImage: null,
-            captured: false
+            captured: false,
+            uploading: false
         }
     }
 
@@ -20,7 +21,9 @@ class ClCamera extends Component {
             document.getElementById('webcam'),
             this.canvasElement
         );
-        this.webcam.setup();
+        this.webcam.setup().catch(() => {
+            alert('Error getting access to your camera');
+        });
     }
 
     componentDidUpdate(prevProps) {
@@ -42,8 +45,15 @@ class ClCamera extends Component {
                 <button className="captureButton" onClick={this.uploadImage} > Upload Photo </button>
             </div> :
             <button className="captureButton" onClick={this.captureImage} > Take Picture </button>
+
+        const uploading = this.state.uploading ?
+            <div><p> Uploading Image, please wait ... </p></div>
+            :
+            <span />
+
         return (
             <div>
+                {uploading}
                 <video autoPlay playsInline muted id="webcam" width="100%" height="200" />
                 <br />
                 <div className="imageCanvas">
@@ -82,19 +92,26 @@ class ClCamera extends Component {
             this.discardImage();
             // save image to local storage
         } else {
+            this.setState({ 'uploading': true });
             axios.post(
                 `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUD_NAME}/image/upload`,
                 {
                     file: this.state.capturedImage,
-                    upload_preset: 'cloudy_pwa'
+                    upload_preset: process.env.REACT_APP_CLOUD_PRESET
                 }
             ).then((data) => {
+                this.setState({ 'uploading': false });
                 if (data.status === 200) {
+                    this.setState({ 'uploading': false });
+                    console.log(data);
                     alert('Image Uploaded to Cloudinary Media Library');
                     this.discardImage();
                 } else {
                     alert('Sorry, we encountered an error uploading your image');
                 }
+            }).catch((error) => {
+                alert('Sorry, we encountered an error uploading your image');
+                this.setState({ 'uploading': false });
             });
         }
     }
@@ -116,24 +133,32 @@ class ClCamera extends Component {
         // this is where all the images saved can be uploaded as batch uploads
         const images = this.findLocalItems(/^cloudy_pwa_/);
         let error = false;
-        for (let i = 0; i < images.length; i++) {
-            // upload
-            axios.post(
-                `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUD_NAME}/image/upload`,
-                {
-                    file: images[i].val,
-                    upload_preset: 'cloudy_pwa'
-                }
-            ).then((data) => {
-                if (data.status === 200) {
-                    localStorage.removeItem(images[i].key);
-                } else {
+        if (images.length > 0) {
+            this.setState({ 'uploading': true });
+            for (let i = 0; i < images.length; i++) {
+                // upload
+                axios.post(
+                    `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUD_NAME}/image/upload`,
+                    {
+                        file: images[i].val,
+                        upload_preset: process.env.REACT_APP_CLOUD_PRESET
+                    }
+                ).then((data) => {
+                    this.setState({ 'uploading': false });
+                    if (data.status === 200) {
+                        localStorage.removeItem(images[i].key);
+                    } else {
+                        error = true;
+                    }
+                    this.uploading = false;
+                }).catch((error) => {
                     error = true;
-                }
-            })
-        }
-        if (!error) {
-            alert("All saved images have been uploaded to your Cloudinary Media Library");
+                })
+            }
+            this.setState({ 'uploading': false });
+            if (!error) {
+                alert("All saved images have been uploaded to your Cloudinary Media Library");
+            }
         }
     }
 }

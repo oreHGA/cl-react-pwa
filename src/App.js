@@ -11,10 +11,22 @@ class App extends Component {
     }
   }
   componentDidMount() {
-    // set the state wether offline or online
-    let offlineStatus = !navigator.onLine;
-    this.setState({ offline: offlineStatus });
+    window.addEventListener('online', () => {
+      this.setState({ offline: false });
+    });
+
+    window.addEventListener('offline', () => {
+      this.setState({ offline: true });
+    });
   }
+
+  componentDidUpdate() {
+    let offlineStatus = !navigator.onLine;
+    if (this.state.offline != offlineStatus) {
+      this.setState({ offline: offlineStatus });
+    }
+  }
+
   render() {
     return (
       <div className="App">
