@@ -6,6 +6,8 @@ An offline Progressive Web Application (PWA) camera app with React and Cloudinar
 
 - ![Cloudy Cam - Offline Mode](./images/demo_offline.gif)
 
+[Link to Tutorial](https://dev.to/ore/building-an-offline-pwa-camera-app-with-react-and-cloudinary-5b9k)
+
 ## Setup
 
 ### Clone the repository
