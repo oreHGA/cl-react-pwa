@@ -22,7 +22,7 @@ class App extends Component {
 
   componentDidUpdate() {
     let offlineStatus = !navigator.onLine;
-    if (this.state.offline != offlineStatus) {
+    if (this.state.offline !== offlineStatus) {
       this.setState({ offline: offlineStatus });
     }
   }

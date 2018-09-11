@@ -99,20 +99,13 @@ class ClCamera extends Component {
                     file: this.state.capturedImage,
                     upload_preset: process.env.REACT_APP_CLOUD_PRESET
                 }
-            ).then((data) => {
-                this.setState({ 'uploading': false });
-                if (data.status === 200) {
-                    this.setState({ 'uploading': false });
-                    console.log(data);
-                    alert('Image Uploaded to Cloudinary Media Library');
-                    this.discardImage();
-                } else {
+            ).then(
+                (data) => this.checkUploadStatus(data)
+            )
+                .catch((error) => {
                     alert('Sorry, we encountered an error uploading your image');
-                }
-            }).catch((error) => {
-                alert('Sorry, we encountered an error uploading your image');
-                this.setState({ 'uploading': false });
-            });
+                    this.setState({ 'uploading': false });
+                });
         }
     }
 
@@ -129,6 +122,15 @@ class ClCamera extends Component {
         return results;
     }
 
+    checkUploadStatus = (data) => {
+        this.setState({ 'uploading': false });
+        if (data.status === 200) {
+            alert('Image Uploaded to Cloudinary Media Library');
+            this.discardImage();
+        } else {
+            alert('Sorry, we encountered an error uploading your image');
+        }
+    }
     batchUploads = () => {
         // this is where all the images saved can be uploaded as batch uploads
         const images = this.findLocalItems(/^cloudy_pwa_/);
@@ -143,15 +145,7 @@ class ClCamera extends Component {
                         file: images[i].val,
                         upload_preset: process.env.REACT_APP_CLOUD_PRESET
                     }
-                ).then((data) => {
-                    this.setState({ 'uploading': false });
-                    if (data.status === 200) {
-                        localStorage.removeItem(images[i].key);
-                    } else {
-                        error = true;
-                    }
-                    this.uploading = false;
-                }).catch((error) => {
+                ).then((data) => this.checkUploadStatus(data)).catch((error) => {
                     error = true;
                 })
             }
