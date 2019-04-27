@@ -32,8 +32,8 @@ class App extends Component {
       <div className="App">
         <Notifier offline={this.state.offline} />
         <header className="App-header">
-          <img src={logo} className="App-logo" alt="Cloudinary Logo" />
-          <h1 className="App-title">CloudyCam</h1>
+          <img src={logo} className="App-logo" alt="NewVision Logo" />
+          <h1 className="App-title">Optical Cam</h1>
         </header>
         <ClCamera offline={this.state.offline}></ClCamera>
       </div>
